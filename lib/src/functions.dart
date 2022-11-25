@@ -2,20 +2,15 @@ import 'dart:io' show File, HttpClientRequest, HttpClientResponse;
 import 'dart:convert' show base64;
 import 'dart:typed_data' show Uint8List;
 import 'package:dart_dev_utils/dart_dev_utils.dart' show Functions;
-import 'files_constants.dart';
+import 'constants.dart';
 import 'consolidate_bytesdata.dart' show consolidateByteData;
 
 class FilesFunctions {
-  late File file;
-
-  static FilesFunctions? _instance;
-
+  static final FilesFunctions _instance = FilesFunctions._();
+  static FilesFunctions get i => _instance;
   FilesFunctions._();
 
-  static FilesFunctions get i {
-    _instance ??= FilesFunctions._();
-    return _instance!;
-  }
+  late File file;
 
   /// obter a base64 atráves da byteData [Uint8Lis]
   String getBase64FromByteData({required Uint8List uint8List}) {
@@ -59,13 +54,13 @@ class FilesFunctions {
     }
   }
 
-  /// criar um arquivo
+  // criar um arquivo
+  /// Nesse método não e necessario informar o nome e extensão do arquivo,
+  /// apenas o endereço completo do onde será criado
   Future<File> createFile(
       {required String filePath,
       required Uint8List bytesData,
       bool recursive = true}) async {
-    /// Nesse método não e necessario informar o nome e extensão do arquivo,
-    /// apenas o endereço completo do onde será criado
     assert(filePath.isNotEmpty, 'Insira o endereço do arquivo');
     file = File(filePath);
 
@@ -80,8 +75,8 @@ class FilesFunctions {
   }
 
   /// apagar um arquivo
+  /// Informa o endereço completo do arquivo a ser deletado
   bool deleteFile({required String filePath, bool recursive = false}) {
-    /// Informa o endereço completo do arquivo a ser deletado
     assert(filePath.isNotEmpty, 'Insira o endereço do arquivo');
     file = File(filePath);
 
@@ -112,7 +107,7 @@ class FilesFunctions {
     HttpClientRequest? _request;
     HttpClientResponse? _response;
 
-    if (Functions.i.isNetworkURL(url: url)) {
+    if (Functions.i.isNetworkURL(url)) {
       try {
         _request = await FilesConstants.i.httpClient.getUrl(Uri.parse(url));
         _response = await _request.close();

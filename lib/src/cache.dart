@@ -2,8 +2,9 @@ import 'dart:io' show File, HttpClientRequest, HttpClientResponse;
 import 'dart:convert' show json;
 import 'dart:typed_data' show Uint8List;
 import 'consolidate_bytesdata.dart' show consolidateByteData;
-import 'files_constants.dart';
-import 'files_functions.dart';
+import 'package:dart_dev_utils/dart_dev_utils.dart' show printLog;
+import 'constants.dart';
+import 'functions.dart';
 
 /// https://flutter.dev/docs/cookbook/persistence/reading-writing-files
 /// https://api.flutter.dev/flutter/dart-io/Directory-class.html
@@ -173,7 +174,7 @@ class FilesCache {
               FilesFunctions.i.file = File(value['fileAddress']);
               await FilesFunctions.i.file.delete();
 
-              ///print('Arquivo removido: $key');
+              printLog('Arquivo removido: $key');
             }
           });
 
@@ -215,7 +216,7 @@ class FilesCache {
           await entity.delete();
         });
 
-        ///print('---- Todos os arquivos em cache da app foram removidos ----');
+        printLog('---- Todos os arquivos em cache da app foram removidos ----');
         return true;
       } else {
         return false;

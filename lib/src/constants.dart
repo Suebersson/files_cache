@@ -1,14 +1,9 @@
 import 'dart:io' show HttpClient, Directory, Platform;
 
 class FilesConstants {
-  static FilesConstants? _instance;
-
+  static final FilesConstants _instance = FilesConstants._();
+  static FilesConstants get i => _instance;
   FilesConstants._();
-
-  static FilesConstants get i {
-    _instance ??= FilesConstants._();
-    return _instance!;
-  }
 
   final HttpClient httpClient = HttpClient();
 
