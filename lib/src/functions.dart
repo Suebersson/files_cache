@@ -1,7 +1,7 @@
 import 'dart:io' show File, HttpClientRequest, HttpClientResponse;
 import 'dart:convert' show base64;
 import 'dart:typed_data' show Uint8List;
-import 'package:dart_dev_utils/dart_dev_utils.dart' show Functions;
+import 'package:dart_dev_utils/dart_dev_utils.dart' show dartDevUtils;
 import 'constants.dart';
 import 'consolidate_bytesdata.dart' show consolidateByteData;
 
@@ -107,7 +107,7 @@ class FilesFunctions {
     HttpClientRequest? _request;
     HttpClientResponse? _response;
 
-    if (Functions.i.isNetworkURL(url)) {
+    if (dartDevUtils.isNetworkURL(url)) {
       try {
         _request = await FilesConstants.i.httpClient.getUrl(Uri.parse(url));
         _response = await _request.close();

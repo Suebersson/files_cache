@@ -1,6 +1,6 @@
 name: files_cache
 description: Package desenvolvida para salvar arquivos temporários na memória de dispositivos em aplicações dart e flutter
-version: 1.0.2
+version: 1.0.3
 homepage: https://github.com/Suebersson/files_cache.git
 repository: https://github.com/Suebersson/files_cache
 
@@ -16,7 +16,7 @@ environment:
   sdk: '>=2.16.1 <3.0.0'
 
 dependencies:
-  dart_dev_utils: ^1.0.9
+  dart_dev_utils: ^1.1.0
 #   path: ^1.8.0
 
 dev_dependencies:

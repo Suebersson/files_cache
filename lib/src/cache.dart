@@ -1,62 +1,67 @@
 import 'dart:io' show File, HttpClientRequest, HttpClientResponse;
 import 'dart:convert' show json;
 import 'dart:typed_data' show Uint8List;
-import 'consolidate_bytesdata.dart' show consolidateByteData;
 import 'package:dart_dev_utils/dart_dev_utils.dart' show printLog;
-import 'constants.dart';
-import 'functions.dart';
 
-/// https://flutter.dev/docs/cookbook/persistence/reading-writing-files
-/// https://api.flutter.dev/flutter/dart-io/Directory-class.html
-///
-/// Ao instânciar a classe [FilesCache] pela primeira vez,
-/// a função [checkExpiredFiles] será chamada, mais támbem
-/// é possível chama-lá manualmente para verificar e exluir o arquivos expirados
-///
-/// ---- Exemplos de como verificar e remover os arquivos expirados ----
-///
-/// Exemplo 1:
-/// Adicionar no método main() da app
-///
-/// Chamar outros procedimentos/funções antes de iniciar a app ---> WidgetsFlutterBinding.ensureInitialized();
-/// Execute algo após o termino da iniciação ---> addPostFrameCallback((_){});
-/// WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((duration) {
-///
-///   //Verificar a validade dos arquivos em cache e remover os que estão expirados
-///   CachedFile.checkExpiredFiles();
-///
-/// });
-///
-/// Exemplo 2:
-/// Adidicionar esse método na HomePage StatefulWidget
-///
-///@override
-///void didChangeAppLifecycleState(AppLifecycleState state) {
-///  super.didChangeAppLifecycleState(state);
-///  //https://api.flutter.dev/flutter/dart-ui/AppLifecycleState-class.html
-///  switch (state) {
-///    case AppLifecycleState.paused:
-///
-///      //Verificar a validade dos arquivos em cache e remover os que estão expirados
-///      CachedFile.checkExpiredFiles();
-///
-///      break:
-///    case AppLifecycleState.resumed:
-///
-///      break;
-///    default: break;
-///  }
-///}
+import './consolidate_bytesdata.dart' show consolidateByteData;
+import './constants.dart';
+import './functions.dart';
+
+// https://flutter.dev/docs/cookbook/persistence/reading-writing-files
+// https://api.flutter.dev/flutter/dart-io/Directory-class.html
+//
+// Ao instânciar a classe [FilesCache] pela primeira vez,
+// a função [checkExpiredFiles] será chamada, mais támbem
+// é possível chama-lá manualmente para verificar e exluir o arquivos expirados
+//
+// ---- Exemplos de como verificar e remover os arquivos expirados ----
+//
+// Exemplo 1:
+//
+// Adicionar no método main() da app
+//
+// Chamar outros procedimentos/funções antes de iniciar a app ---> WidgetsFlutterBinding.ensureInitialized();
+// Execute algo após o termino da iniciação ---> addPostFrameCallback((_){});
+// WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((duration) {
+//
+//  //Verificar a validade dos arquivos em cache e remover os que estão expirados
+//   CachedFile.checkExpiredFiles();
+//
+// });
+
+// Exemplo 2:
+// Adidicionar esse método na HomePage StatefulWidget
+//
+// @override
+// void didChangeAppLifecycleState(AppLifecycleState state) {
+//  super.didChangeAppLifecycleState(state);
+//  //https://api.flutter.dev/flutter/dart-ui/AppLifecycleState-class.html
+//  switch (state) {
+//    case AppLifecycleState.paused:
+//
+//      //Verificar a validade dos arquivos em cache e remover os que estão expirados
+//      CachedFile.checkExpiredFiles();
+//
+//      break:
+//    case AppLifecycleState.resumed:
+//
+//      break;
+//    default: break;
+//  }
+//}
 
 final File _cachedFileData = File(
     '${FilesConstants.i.cacheDirectory.path}${FilesConstants.i.pathSeparator}cachedFileData.json');
 
 bool _checkExpiredFiles = false;
-enum _OperationType { add, upDate }
 
+enum OperationType {
+  add,
+  upDate,
+}
+
+/// Classe resposável por armazenar, ler e excluir os arquivos em cache na mémoria
 class FilesCache {
-  /// Classe resposável por armazenar, ler e excluir os arquivos em cache na mémoria
-
   HttpClientRequest? _request;
   HttpClientResponse? _response;
   Uri? urlAddress;
@@ -119,16 +124,19 @@ class FilesCache {
 
           return T == Uint8List ? uint8List as T : fileAddress as T;
         }).whenComplete(() {
-          _upDateJsonDataBaseCache(data: {
-            fileName!: {
-              "networkURL": urlAddress!.toString(),
-              "fileAddress": fileAddress!.path,
-              "fileSize": fileAddress!.lengthSync(),
-              "expirationData": DateTime.now()
-                  .add(fileDurationTime ?? const Duration(days: 3))
-                  .toIso8601String(),
-            }
-          }, type: _OperationType.add);
+          _upDateJsonDataBaseCache(
+            data: {
+              fileName!: {
+                "networkURL": urlAddress!.toString(),
+                "fileAddress": fileAddress!.path,
+                "fileSize": fileAddress!.lengthSync(),
+                "expirationData": DateTime.now()
+                    .add(fileDurationTime ?? const Duration(days: 3))
+                    .toIso8601String(),
+              }
+            },
+            type: OperationType.add,
+          );
 
           _dispose();
         }).catchError((_) {
@@ -179,7 +187,7 @@ class FilesCache {
           });
 
           if (counter > _data.length) {
-            _upDateJsonDataBaseCache(data: _data, type: _OperationType.upDate);
+            _upDateJsonDataBaseCache(data: _data, type: OperationType.upDate);
           }
           _data.clear();
         }
@@ -188,11 +196,12 @@ class FilesCache {
   }
 
   /// função responsável por registrar num arquivos json os dados de armazenamento dos arquivos em cache
-  static void _upDateJsonDataBaseCache(
-      {required Map<String, dynamic> data,
-      required _OperationType type}) async {
+  static void _upDateJsonDataBaseCache({
+    required Map<String, dynamic> data,
+    required OperationType type,
+  }) async {
     if (_cachedFileData.existsSync()) {
-      if (type == _OperationType.add) {
+      if (type == OperationType.add) {
         await _cachedFileData.readAsString().then((value) {
           Map<String, dynamic> _data = json.decode(value);
           _data.addAll(data);
@@ -231,7 +240,7 @@ class FilesCache {
         if (value.isNotEmpty) {
           final Map<String, dynamic> _data = json.decode(value);
 
-          ///ler o tamanho de todos os arquivos salvos em cache + o próprio json
+          // ler o tamanho de todos os arquivos salvos em cache + o próprio json
           final byte =
               _data.values.fold<num>(0, (value, e) => value + e['fileSize']) +
                   _cachedFileData.lengthSync();
